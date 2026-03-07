@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Market Shock Analyzer</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    background:#0f1117;
+    color:white;
+}
+
+header{
+    text-align:center;
+    padding:30px;
+    background:#161b22;
+    border-bottom:1px solid #30363d;
+}
+
+header h1{
+    margin:0;
+    font-size:40px;
+}
+
+header p{
+    color:#8b949e;
+}
+
+.container{
+    width:90%;
+    margin:auto;
+    margin-top:30px;
+}
+
+.card{
+    background:#161b22;
+    border:1px solid #30363d;
+    border-radius:10px;
+    padding:20px;
+    margin-bottom:25px;
+}
+
+.section-title{
+    font-size:22px;
+    margin-bottom:15px;
+}
+
+input{
+    width:100%;
+    padding:12px;
+    border-radius:6px;
+    border:none;
+    margin-top:10px;
+    margin-bottom:10px;
+}
+
+button{
+    padding:10px 20px;
+    border:none;
+    border-radius:6px;
+    background:#238636;
+    color:white;
+    font-weight:bold;
+}
+
+.grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(250px,1fr));
+    gap:15px;
+}
+
+.company-card{
+    background:#0d1117;
+    padding:15px;
+    border-radius:8px;
+    border:1px solid #30363d;
+}
+
+.green{
+    color:#2ea043;
+}
+
+.red{
+    color:#f85149;
+}
+
+.trade-grid{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:20px;
+}
+
+.buy{
+    background:#0d1117;
+    border:1px solid #2ea043;
+}
+
+.sell{
+    background:#0d1117;
+    border:1px solid #f85149;
+}
+
+.prediction{
+    background:#0d1117;
+    border:1px solid #30363d;
+}
+
+.industry{
+    margin-bottom:10px;
+}
+
+</style>
+</head>
+
+<body>
+
+<header>
+<h1>Market Shock Analyzer</h1>
+<p>AI Powered Geopolitical Market Impact Simulator</p>
+</header>
+
+<div class="container">
+
+<!-- Event Input -->
+<div class="card">
+<div class="section-title">Enter Geopolitical Event</div>
+<input placeholder="Example: Oil embargo in the Middle East or Taiwan conflict">
+<button>Run Shock Analysis</button>
+</div>
+
+<!-- Industry Disruption -->
+<div class="card">
+<div class="section-title">Most Disrupted Industries</div>
+
+<div class="industry red">Semiconductors −92</div>
+<div class="industry red">Consumer Electronics −85</div>
+<div class="industry red">Shipping −70</div>
+<div class="industry green">Defense +45</div>
+<div class="industry green">Energy +30</div>
+
+</div>
+
+<!-- Companies -->
+<div class="card">
+<div class="section-title">Most Exposed Companies</div>
+
+<div class="grid">
+
+<div class="company-card">
+<h3>Semiconductors</h3>
+<p>TSMC (TSM)</p>
+<p>Price: $140</p>
+</div>
+
+<div class="company-card">
+<h3>Consumer Electronics</h3>
+<p>Apple (AAPL)</p>
+<p>Price: $180</p>
+</div>
+
+<div class="company-card">
+<h3>Shipping</h3>
+<p>Maersk (AMKBY)</p>
+<p>Price: $82</p>
+</div>
+
+<div class="company-card">
+<h3>Defense</h3>
+<p>Lockheed Martin (LMT)</p>
+<p>Price: $450</p>
+</div>
+
+</div>
+</div>
+
+<!-- Trade Strategy -->
+<div class="card">
+<div class="section-title">Trade Strategy</div>
+
+<div class="trade-grid">
+
+<div class="card buy">
+<h3 class="green">Buy Opportunities</h3>
+
+<p class="green">Lockheed Martin (LMT) +18%</p>
+<p class="green">ExxonMobil (XOM) +12%</p>
+
+</div>
+
+<div class="card sell">
+<h3 class="red">Sell Risks</h3>
+
+<p class="red">TSMC (TSM) −20%</p>
+<p class="red">Apple (AAPL) −15%</p>
+
+</div>
+
+</div>
+</div>
+
+<!-- Predictions -->
+<div class="card">
+<div class="section-title">One Year Price Outlook</div>
+
+<div class="grid">
+
+<div class="card prediction">
+<h3>TSMC</h3>
+<p>Current Price: $140</p>
+<p class="red">Predicted Range: $105 – $120</p>
+<p class="red">Expected Change: −20%</p>
+</div>
+
+<div class="card prediction">
+<h3>Lockheed Martin</h3>
+<p>Current Price: $450</p>
+<p class="green">Predicted Range: $520 – $560</p>
+<p class="green">Expected Change: +18%</p>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</body>
+</html>
