@@ -243,6 +243,19 @@ These recommendations are **unique per scenario** based on what the ML model ide
 
 ---
 
+## Analytics Tab
+
+The **Analytics** tab now also shows **scenario-specific stock recommendations**:
+
+- **Stocks to SHORT** (expected to fall)
+- **Stocks to BUY** (expected to rise)
+
+These are the **same recommendations** as the Stock Recommendations tab, but displayed in the Analytics view with the heatmap and other metrics.
+
+**Important**: The Analytics tab now uses the same ML-driven logic as the Simulator tab, so custom scenarios will show different stocks based on the ML analysis!
+
+---
+
 ## Tips for Best Results
 
 ### 1. Be Descriptive

@@ -181,6 +181,7 @@ Unique Predictions
    - Prioritizes ML-analyzed sectors
    - Uses `mlAnalysis.affectedSectors` for custom scenarios
    - Fallback to preset mappings only if no ML match
+   - **Now used by BOTH Simulator AND Analytics tabs**
 
 5. **`setupCustomScenarioInput()`** (completely rewritten)
    - Real-time ML analysis on text input

@@ -73,6 +73,7 @@ User enters: "Tech crisis"  → Graph: -50%, 30 days, 2.2x volatility ✅
 - Uses ML-identified sectors for custom scenarios
 - Maps sectors to specific stocks (BUY/SHORT lists)
 - Fallback to presets if ML finds no match
+- **Now used by BOTH Simulator AND Analytics tabs**
 
 **Unique per scenario**: Yes ✅
 **Stock sectors affected**: All 11 sectors
