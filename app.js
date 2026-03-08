@@ -1304,11 +1304,8 @@ const REGIONS = [
  if (stocksDown && stocksUp) {
  stocksDown.innerHTML = '';
  stocksUp.innerHTML = '';
- const downList = [], upList = [];
- for (const [sid, data] of Object.entries(STOCKS_BY_SECTOR)) {
- (data.down || []).forEach((s) => downList.push({ ...s, sector: sid }));
- (data.up || []).forEach((s) => upList.push({ ...s, sector: sid }));
- }
+ // Use the same ML-driven stock recommendations as the Simulator tab
+ const { upList, downList } = getStockRecommendations();
  downList.slice(0, 8).forEach((s) => {
  const li = document.createElement('li');
  li.innerHTML = `<span>${s.name}</span><span class="ticker">${s.ticker}</span>`;
