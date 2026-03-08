@@ -404,7 +404,7 @@ const REGIONS = [
  const dailyVol = (scenario.baseVol * state.volatilityMult * region.sensitivity) / 100;
  const noise = randn() * dailyVol;
  
- const drift = scenario.baseDrift / 100 / 252;
+ const drift = scenario.baseDrift / 100 / 365;
  
  const totalReturn = shockReturn + noise + drift;
  const next = last * (1 + totalReturn);
@@ -611,7 +611,16 @@ const REGIONS = [
  
  const minValue = Math.min(...series);
  const maxValue = Math.max(...series);
- const range = maxValue - minValue || 1;
+ let range = maxValue - minValue || 1;
+ 
+ // Expand range to show full -500 to 500 scale while keeping zoom on data
+ const expandedMin = Math.min(minValue, -500);
+ const expandedMax = Math.max(maxValue, 500);
+ 
+ // Add 15% padding to the actual data range for zoom effect
+ const dataPadding = range * 0.15;
+ const adjustedMin = Math.max(minValue - dataPadding, expandedMin);
+ const adjustedMax = Math.min(maxValue + dataPadding, expandedMax);
  
  const xScale = (day) =>
  paddingLeft + (day / horizon) * (width - paddingLeft - paddingRight);
@@ -619,7 +628,7 @@ const REGIONS = [
  const pathData = [];
  for (let i = 0; i < series.length; i += 1) {
  const x = xScale(i);
- const norm = (series[i] - minValue) / range;
+ const norm = (series[i] - adjustedMin) / (adjustedMax - adjustedMin);
  const y = height - paddingBottom - norm * (height - paddingTop - paddingBottom);
  pathData.push(`${i === 0 ? 'M' : 'L'} ${x} ${y}`);
  }
@@ -628,7 +637,7 @@ const REGIONS = [
  const baseY =
  height -
  paddingBottom -
- ((baseVal - minValue) / range) * (height - paddingTop - paddingBottom);
+ ((baseVal - adjustedMin) / (adjustedMax - adjustedMin)) * (height - paddingTop - paddingBottom);
  
  const baseLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
  baseLine.setAttribute('x1', paddingLeft);
@@ -642,8 +651,8 @@ const REGIONS = [
  
  const yTickCount = 4;
  for (let i = 0; i < yTickCount; i += 1) {
- const value = minValue + (i / (yTickCount - 1)) * range;
- const norm = (value - minValue) / range;
+ const value = adjustedMin + (i / (yTickCount - 1)) * (adjustedMax - adjustedMin);
+ const norm = (value - adjustedMin) / (adjustedMax - adjustedMin);
  const y =
  height - paddingBottom - norm * (height - paddingTop - paddingBottom);
  
@@ -727,7 +736,7 @@ const REGIONS = [
  const lastValue = series[series.length - 1];
  const lastDay = series.length - 1;
  const lastX = xScale(lastDay);
- const lastNorm = (lastValue - minValue) / range;
+ const lastNorm = (lastValue - adjustedMin) / (adjustedMax - adjustedMin);
  const lastY = height - paddingBottom - lastNorm * (height - paddingTop - paddingBottom);
  
  const dot = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
@@ -1165,7 +1174,7 @@ const REGIONS = [
  const periods = [
  { label: '1 week', days: 5 },
  { label: '1 month', days: 21 },
- { label: '1 year', days: 252 },
+ { label: '1 year', days: 365},
  { label: '5 years', days: 1260 },
  ];
  thEl.innerHTML = periods.map((p) => {
@@ -1189,7 +1198,7 @@ const REGIONS = [
  const periods = [
  { label: '1 week', days: 5 },
  { label: '1 month', days: 21 },
- { label: '1 year', days: 252 },
+ { label: '1 year', days: 365 },
  { label: '5 years', days: 1260 },
  ];
  const base = 100;
