@@ -270,6 +270,24 @@ const REGIONS = [
  }
  
  function getScenario() {
+ // Check if this is a custom scenario with ML analysis
+ if (state.selectedScenarioId === 'custom' && state.customScenarioText) {
+ const mlAnalysis = analyzeCustomScenarioML(state.customScenarioText);
+ if (mlAnalysis) {
+ return {
+ id: 'custom',
+ name: 'Custom: ' + (state.customScenarioText.substring(0, 40) + (state.customScenarioText.length > 40 ? '...' : '')),
+ description: 'ML-analyzed custom scenario',
+ shockCenter: Math.max(3, Math.min(30, Math.floor(mlAnalysis.estimatedDuration / 3))),
+ shockMagnitude: mlAnalysis.estimatedMagnitude,
+ decay: 0.04,
+ baseDrift: 0.02,
+ baseVol: mlAnalysis.volatilityMult,
+ regionOverrides: {},
+ mlAnalysis: mlAnalysis
+ };
+ }
+ }
  return SCENARIOS.find((s) => s.id === state.selectedScenarioId) || SCENARIOS[0];
  }
  
@@ -305,6 +323,128 @@ const REGIONS = [
  return { sectorsUp: [...sectorsUp], sectorsDown: [...sectorsDown], confidence, hasMatch: matched > 0 };
  }
 
+ // Advanced ML-based scenario analyzer
+ function analyzeCustomScenarioML(text) {
+ const t = String(text || '').toLowerCase();
+ if (!t.trim()) return null;
+
+ // Severity scoring based on keywords
+ const severityKeywords = {
+ critical: ['war', 'invasion', 'conflict', 'attack', 'collapse', 'bankruptcy', 'crash', 'crisis', 'emergency'],
+ high: ['embargo', 'sanctions', 'pandemic', 'recession', 'default', 'terror', 'disaster', 'earthquake'],
+ medium: ['slowdown', 'decline', 'shortage', 'inflation', 'strike', 'cyberattack', 'scandal'],
+ low: ['tension', 'uncertainty', 'concern', 'risk', 'pressure', 'volatility']
+ };
+
+ // Scope keywords - determine which regions/sectors are affected
+ const scopeKeywords = {
+ global: ['global', 'worldwide', 'international', 'all nations', 'all countries', 'everywhere'],
+ regional: ['asia', 'europe', 'americas', 'middle east', 'africa', 'region'],
+ bilateral: ['china', 'taiwan', 'usa', 'russia', 'ukraine', 'israel', 'iran', 'saudi', 'india', 'pakistan']
+ };
+
+ // Duration inference - map severity to typical duration
+ const durationMap = { critical: 45, high: 30, medium: 18, low: 10 };
+
+ // Calculate severity (0-100)
+ let severity = 0;
+ for (const [level, keywords] of Object.entries(severityKeywords)) {
+ for (const keyword of keywords) {
+ if (t.includes(keyword)) {
+ severity = Math.max(severity, { critical: 80, high: 60, medium: 40, low: 20 }[level]);
+ }
+ }
+ }
+
+ // Infer scope
+ let scope = 'regional';
+ for (const [s, keywords] of Object.entries(scopeKeywords)) {
+ if (keywords.some(k => t.includes(k))) {
+ scope = s;
+ break;
+ }
+ }
+
+ // Estimate shock magnitude based on severity (-90 to 0 range)
+ let estimatedMagnitude = -30;
+ if (severity >= 80) estimatedMagnitude = -70;
+ else if (severity >= 60) estimatedMagnitude = -50;
+ else if (severity >= 40) estimatedMagnitude = -35;
+ else if (severity >= 20) estimatedMagnitude = -20;
+
+ // Adjust for global scope
+ if (scope === 'global') estimatedMagnitude *= 1.3;
+ else if (scope === 'bilateral') estimatedMagnitude *= 0.8;
+
+ // Infer duration
+ const estimatedDuration = durationMap[Object.keys(durationMap).find(k => severityKeywords[k].some(kw => t.includes(kw))) || 'medium'] || 15;
+
+ // Infer volatility multiplier (1.0 to 3.0)
+ let volatilityMult = 1.5;
+ if (severity >= 80) volatilityMult = 2.8;
+ else if (severity >= 60) volatilityMult = 2.2;
+ else if (severity >= 40) volatilityMult = 1.8;
+
+ // Identify affected sectors
+ const affectedSectors = identifyAffectedSectors(t, severity, scope);
+
+ return {
+ severity,
+ scope,
+ estimatedMagnitude: Math.max(-90, estimatedMagnitude),
+ estimatedDuration: Math.max(5, Math.min(180, estimatedDuration)),
+ volatilityMult,
+ affectedSectors,
+ confidence: 0.7 + Math.min(0.25, (severity / 100) * 0.25)
+ };
+ }
+
+ function identifyAffectedSectors(text, severity, scope) {
+ const sectorImpactMap = {
+ energy: { keywords: ['oil', 'energy', 'gas', 'opec', 'embargo', 'supply'], sectorsUp: [], sectorsDown: ['airlines', 'consumer', 'tech'] },
+ defense: { keywords: ['war', 'conflict', 'invasion', 'military', 'defense', 'attack'], sectorsUp: ['defense'], sectorsDown: ['airlines', 'tourism'] },
+ tech: { keywords: ['semiconductor', 'tech', 'chip', 'cyberattack', 'tech ban'], sectorsUp: [], sectorsDown: ['semiconductors', 'tech'] },
+ health: { keywords: ['pandemic', 'virus', 'disease', 'health'], sectorsUp: ['healthcare', 'defensive'], sectorsDown: ['airlines', 'consumer', 'tourism'] },
+ financial: { keywords: ['banking', 'credit', 'default', 'recession'], sectorsUp: [], sectorsDown: ['financials', 'consumer'] },
+ trade: { keywords: ['trade war', 'tariff', 'sanctions', 'embargo'], sectorsUp: ['defense', 'energy'], sectorsDown: ['tech', 'consumer', 'manufacturing'] },
+ natural: { keywords: ['earthquake', 'tsunami', 'hurricane', 'disaster'], sectorsUp: [], sectorsDown: ['tourism', 'airlines', 'retail'] }
+ };
+
+ const result = { up: new Set(), down: new Set() };
+
+ for (const [category, config] of Object.entries(sectorImpactMap)) {
+ if (config.keywords.some(k => text.includes(k))) {
+ config.sectorsUp.forEach(s => result.up.add(s));
+ config.sectorsDown.forEach(s => result.down.add(s));
+ }
+ }
+
+ // Add defensive sectors for severe scenarios
+ if (severity >= 70) {
+ result.up.add('defensive');
+ result.up.add('healthcare');
+ }
+
+ return { up: Array.from(result.up), down: Array.from(result.down) };
+ }
+
+ function classifyCustomScenario(text) {
+ const t = String(text || '').toLowerCase();
+ if (!t.trim()) return null;
+ const sectorsUp = new Set();
+ const sectorsDown = new Set();
+ let matched = 0;
+ for (const [type, cfg] of Object.entries(CUSTOM_SCENARIO_KEYWORDS)) {
+ if (cfg.keywords.some((k) => t.includes(k))) {
+ matched += 1;
+ (cfg.sectorsUp || []).forEach((s) => sectorsUp.add(s));
+ (cfg.sectorsDown || []).forEach((s) => sectorsDown.add(s));
+ }
+ }
+ const confidence = Math.min(0.95, 0.5 + matched * 0.15);
+ return { sectorsUp: [...sectorsUp], sectorsDown: [...sectorsDown], confidence, hasMatch: matched > 0 };
+ }
+
  function getStockRecommendations() {
  const customText = state.customScenarioText;
  const scenario = getScenario();
@@ -318,7 +458,14 @@ const REGIONS = [
  'pandemic': { up: ['healthcare', 'defensive'], down: ['airlines', 'consumer'] },
  'custom': null,
  };
- if (customText && customText.trim()) {
+ 
+ // For custom scenarios with ML analysis
+ if (scenario.id === 'custom' && scenario.mlAnalysis) {
+ source = 'custom_ml';
+ (scenario.mlAnalysis.affectedSectors.up || []).forEach((s) => sectorsUp.add(s));
+ (scenario.mlAnalysis.affectedSectors.down || []).forEach((s) => sectorsDown.add(s));
+ } else if (customText && customText.trim()) {
+ // Fallback to basic classification
  const classified = classifyCustomScenario(customText);
  if (classified && classified.hasMatch) {
  source = 'custom_ml';
@@ -326,6 +473,8 @@ const REGIONS = [
  classified.sectorsDown.forEach((s) => sectorsDown.add(s));
  }
  }
+ 
+ // Use preset if no custom sectors identified
  if (source === 'preset' || sectorsUp.size === 0) {
  const p = presetMap[scenario.id];
  if (p) {
@@ -1068,6 +1217,40 @@ const REGIONS = [
  if (!el) return;
  el.addEventListener('input', () => {
  state.customScenarioText = el.value;
+ 
+ // Auto-preset sliders based on ML analysis
+ if (el.value.trim()) {
+ const mlAnalysis = analyzeCustomScenarioML(el.value);
+ if (mlAnalysis) {
+ // Update state with ML-derived parameters
+ state.shockMagnitude = mlAnalysis.estimatedMagnitude;
+ state.shockDuration = mlAnalysis.estimatedDuration;
+ state.volatilityMult = mlAnalysis.volatilityMult;
+ state.horizon = Math.max(60, mlAnalysis.estimatedDuration * 3);
+ 
+ // Update slider UI
+ const magSlider = document.getElementById('shockMagnitudeSlider');
+ const durSlider = document.getElementById('shockDurationSlider');
+ const volSlider = document.getElementById('volatilityMultSlider');
+ const horizSlider = document.getElementById('horizonSlider');
+ 
+ if (magSlider) magSlider.value = mlAnalysis.estimatedMagnitude;
+ if (durSlider) durSlider.value = mlAnalysis.estimatedDuration;
+ if (volSlider) volSlider.value = mlAnalysis.volatilityMult.toFixed(2);
+ if (horizSlider) horizSlider.value = Math.max(60, mlAnalysis.estimatedDuration * 3);
+ 
+ // Switch to custom scenario
+ state.selectedScenarioId = 'custom';
+ const scenarioSelect = document.getElementById('scenarioSelect');
+ if (scenarioSelect) scenarioSelect.value = 'custom';
+ 
+ // Log event
+ logEvent(`ML Analysis: Severity ${mlAnalysis.severity}%, Scope ${mlAnalysis.scope}, Duration ${mlAnalysis.estimatedDuration} days`);
+ 
+ // Render to show updates
+ render();
+ }
+ }
  });
  }
 
