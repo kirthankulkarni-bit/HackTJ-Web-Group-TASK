@@ -71,6 +71,16 @@
             <div class="chart-axis-label chart-axis-label-y">Index level</div>
           </div>
 
+          <div class="field">
+            <label class="field-label" for="horizonSelect">Time horizon</label>
+            <select id="horizonSelect" class="select">
+              <option value="12">Quick (12 days)</option>
+              <option value="60">Short (60 days)</option>
+              <option value="180" selected>Long (180 days ≈ 6 months)</option>
+              <option value="252">Extended (252 days ≈ 1 year)</option>
+            </select>
+          </div>
+
           <div class="event-log">
             <div class="event-log-header">
               <span>Simulation log</span>
@@ -121,26 +131,15 @@
             <p class="field-hint">Describe a specific event. ML model will predict sector impact and stock recommendations.</p>
           </div>
 
-          <div class="field-grid">
-            <div class="field">
-              <label class="field-label" for="regionInput">Focus region</label>
-              <input type="text" id="regionInput" class="input" placeholder="e.g. North America, Germany, Japan" autocomplete="off" />
-              <div id="regionError" class="field-error" role="alert" hidden>Region not supported. See supported regions below.</div>
-              <p class="field-hint" id="regionHint">60+ regions supported</p>
+          <div class="field">
+            <label class="field-label" for="regionInput">Focus region</label>
+            <input type="text" id="regionInput" class="input" placeholder="e.g. North America, Germany, Japan" autocomplete="off" />
+            <div id="regionError" class="field-error" role="alert" hidden>Region not supported. See supported regions below.</div>
+            <p class="field-hint" id="regionHint">60+ regions supported</p>
             <details class="regions-list-details">
               <summary>View all supported regions</summary>
               <div id="supportedRegionsList" class="regions-list"></div>
             </details>
-            </div>
-            <div class="field">
-              <label class="field-label" for="horizonSelect">Time horizon</label>
-              <select id="horizonSelect" class="select">
-                <option value="12">Quick (12 days)</option>
-                <option value="60">Short (60 days)</option>
-                <option value="180" selected>Long (180 days ≈ 6 months)</option>
-                <option value="252">Extended (252 days ≈ 1 year)</option>
-              </select>
-            </div>
           </div>
 
           <div class="field">
