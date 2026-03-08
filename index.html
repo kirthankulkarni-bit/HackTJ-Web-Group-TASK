@@ -1,316 +1,339 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8" />
-    <title>Geographic Market Shock Simulator</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta
-      name="description"
-      content="Interactive geographic stock market shock simulator with regional scenarios and dynamic charts."
-    />
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link rel="stylesheet" href="./styles.css" />
-  </head>
-  <body>
-    <div class="app-shell">
-      <nav class="tab-nav" role="tablist">
-        <button type="button" class="tab-btn active" data-tab="simulator" aria-selected="true">Simulator</button>
-        <button type="button" class="tab-btn" data-tab="analytics" aria-selected="false">Analytics</button>
-        <button type="button" class="tab-btn" data-tab="recommendations" aria-selected="false">Stock Recommendations</button>
-      </nav>
-      <header class="app-header">
-        <div class="app-header-main">
-          <h1>Geographic Market Shock Simulator</h1>
-          <p>
-            Explore how regional stock markets react to different macro shocks over time. Tune
-            magnitude, duration, and volatility, then watch the impact propagate.
-          </p>
-        </div>
-        <div class="app-header-meta">
-          <span class="badge badge-primary">Simulation</span>
-          <span class="badge badge-soft">No real market data</span>
-        </div>
-      </header>
+ <head>
+   <meta charset="utf-8" />
+   <title>Geographic Market Shock Simulator</title>
+   <meta name="viewport" content="width=device-width, initial-scale=1" />
+   <meta
+     name="description"
+     content="Interactive geographic stock market shock simulator with regional scenarios and dynamic charts."
+   />
+   <link rel="preconnect" href="https://fonts.googleapis.com" />
+   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+   <link
+     href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+     rel="stylesheet"
+   />
+   <link rel="stylesheet" href="./styles.css" />
+ </head>
+ <body>
+   <div class="app-shell">
+     <nav class="tab-nav" role="tablist">
+       <button type="button" class="tab-btn active" data-tab="simulator" aria-selected="true">Simulator</button>
+       <button type="button" class="tab-btn" data-tab="analytics" aria-selected="false">Analytics</button>
+       <button type="button" class="tab-btn" data-tab="recommendations" aria-selected="false">Stock Recommendations</button>
+     </nav>
+     <header class="app-header">
+       <div class="app-header-main">
+         <h1>Geographic Market Shock Simulator</h1>
+         <p>
+           Explore how regional stock markets react to different macro shocks over time. Tune
+           magnitude, duration, and volatility, then watch the impact propagate.
+         </p>
+       </div>
+       <div class="app-header-meta">
+         <span class="badge badge-primary">Simulation</span>
+         <span class="badge badge-soft">No real market data</span>
+       </div>
+     </header>
 
-      <main id="simulatorTab" class="app-main tab-content">
-        <section class="panel viz-panel">
-          <div class="panel-header">
-            <h2>Geographic impact map</h2>
-            <p>
-              Regions glow red under stress and cool as they recover. Click a region to focus its
-              path.
-            </p>
-          </div>
 
-          <div id="mapContainer" class="map-grid">
-            <!-- Filled by JS -->
-          </div>
+     <main id="simulatorTab" class="app-main tab-content">
+       <section class="panel viz-panel">
+         <div class="panel-header">
+           <h2>Geographic impact map</h2>
+           <p>
+             Regions glow red under stress and cool as they recover. Click a region to focus its
+             path.
+           </p>
+         </div>
 
-          <div class="panel-subheader">
-            <div>
-              <h3>Index path</h3>
-              <p>Evolution of the selected region&rsquo;s synthetic equity index.</p>
-            </div>
-            <div class="chart-meta">
-              <span id="dayCounter" class="day-counter">Day 0 / 120</span>
-              <div class="legend">
-                <span class="legend-dot legend-dot-primary"></span>
-                <span>Index level</span>
-              </div>
-            </div>
-          </div>
 
-          <div class="chart-shell">
-            <svg id="chartSvg" class="chart" role="img" aria-label="Index path over time"></svg>
-            <div class="chart-axis-label chart-axis-label-x">Time (days)</div>
-            <div class="chart-axis-label chart-axis-label-y">Index level</div>
-          </div>
+         <div id="mapContainer" class="map-grid">
+           <!-- Filled by JS -->
+         </div>
 
-          <div class="field">
-            <label class="field-label" for="horizonSelect">Time horizon</label>
-            <select id="horizonSelect" class="select">
-              <option value="12">Quick (12 days)</option>
-              <option value="60">Short (60 days)</option>
-              <option value="180" selected>Long (180 days ≈ 6 months)</option>
-              <option value="252">Extended (252 days ≈ 1 year)</option>
-            </select>
-          </div>
 
-          <div class="event-log">
-            <div class="event-log-header">
-              <span>Simulation log</span>
-              <button id="clearLogBtn" class="btn-icon" aria-label="Clear log">
-                ✕
-              </button>
-            </div>
-            <ul id="eventLogList"></ul>
-          </div>
-        </section>
+         <div class="panel-subheader">
+           <div>
+             <h3>Index path</h3>
+             <p>Evolution of the selected region&rsquo;s synthetic equity index.</p>
+           </div>
+           <div class="chart-meta">
+             <span id="dayCounter" class="day-counter">Day 0 / 120</span>
+             <div class="legend">
+               <span class="legend-dot legend-dot-primary"></span>
+               <span>Index level</span>
+             </div>
+           </div>
+         </div>
 
-        <div class="simulator-metrics-panel">
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <div class="metric-label">Current index</div>
-              <div class="metric-value" id="metricCurrent">100.0</div>
-              <div class="metric-sub" id="metricCurrentChange">0.0% vs start</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Max drawdown</div>
-              <div class="metric-value" id="metricDrawdown">0.0%</div>
-              <div class="metric-sub" id="metricTrough">Trough: 100.0</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Recovery</div>
-              <div class="metric-value" id="metricRecovery">–</div>
-              <div class="metric-sub" id="metricRecoveryDays">Days to recover</div>
-            </div>
-          </div>
-        </div>
 
-        <section class="panel controls-panel">
-          <div class="panel-header">
-            <h2>Scenario &amp; Controls</h2>
-            <p>Choose a shock scenario, then refine parameters for a custom stress test.</p>
-          </div>
+         <div class="chart-shell">
+           <svg id="chartSvg" class="chart" role="img" aria-label="Index path over time"></svg>
+           <div class="chart-axis-label chart-axis-label-x">Time (days)</div>
+           <div class="chart-axis-label chart-axis-label-y">Index level</div>
+         </div>
 
-          <div class="control-group">
-            <label class="field-label">Scenario presets</label>
-            <div class="scenario-buttons" id="scenarioButtons">
-              <!-- Filled by JS -->
-            </div>
-          </div>
 
-          <div class="control-group custom-scenario-box">
-            <label class="field-label" for="customScenarioInput">Custom scenario</label>
-            <textarea id="customScenarioInput" class="input textarea" rows="2" placeholder="e.g. Pandemic spreads across China, Germany invades Poland, oil embargo in Middle East"></textarea>
-            <p class="field-hint">Describe a specific event. ML model will predict sector impact and stock recommendations.</p>
-          </div>
+         <div class="field">
+           <label class="field-label" for="horizonSelect">Time horizon</label>
+           <select id="horizonSelect" class="select">
+             <option value="12">Quick (12 days)</option>
+             <option value="60">Short (60 days)</option>
+             <option value="180" selected>Long (180 days ≈ 6 months)</option>
+             <option value="252">Extended (252 days ≈ 1 year)</option>
+           </select>
+         </div>
 
-          <div class="field">
-            <label class="field-label" for="regionInput">Focus region</label>
-            <input type="text" id="regionInput" class="input" placeholder="e.g. North America, Germany, Japan" autocomplete="off" />
-            <div id="regionError" class="field-error" role="alert" hidden>Region not supported. See supported regions below.</div>
-            <p class="field-hint" id="regionHint">60+ regions supported</p>
-            <details class="regions-list-details">
-              <summary>View all supported regions</summary>
-              <div id="supportedRegionsList" class="regions-list"></div>
-            </details>
-          </div>
 
-          <div class="field">
-            <label class="field-label" for="sectorSelect">Sector within region</label>
-            <select id="sectorSelect" class="select">
-              <!-- Filled by JS -->
-            </select>
-          </div>
+         <div class="event-log">
+           <div class="event-log-header">
+             <span>Simulation log</span>
+             <button id="clearLogBtn" class="btn-icon" aria-label="Clear log">
+               ✕
+             </button>
+           </div>
+           <ul id="eventLogList"></ul>
+         </div>
+       </section>
 
-          <details class="metrics-definitions">
-            <summary>Metric definitions</summary>
-            <div class="metrics-def-content">
-              <p><strong>Shock magnitude</strong> — Expected peak impact on equity returns (%). Negative = decline; positive = rally. E.g. -30% means a ~30% drop at the shock's peak.</p>
-              <p><strong>Shock duration</strong> — How many days the stress stays concentrated. Longer = slower decay; shorter = sharp spike then fast recovery.</p>
-              <p><strong>Volatility</strong> — Multiplier for day-to-day noise (like VIX). Higher = more erratic daily moves around the trend.</p>
-            </div>
-          </details>
-          <div class="slider-group">
-            <div class="slider-row">
-              <div class="slider-label">
-                <span>Shock magnitude</span>
-                <span id="magnitudeValue" class="slider-value">-30%</span>
-              </div>
-              <input
-                id="magnitudeSlider"
-                type="range"
-                min="-60"
-                max="20"
-                step="1"
-                value="-30"
-              />
-            </div>
 
-            <div class="slider-row">
-              <div class="slider-label">
-                <span>Shock duration</span>
-                <span id="durationValue" class="slider-value">10 days</span>
-              </div>
-              <input id="durationSlider" type="range" min="3" max="40" step="1" value="10" />
-            </div>
+       <div class="simulator-metrics-panel">
+         <div class="metrics-grid">
+           <div class="metric-card">
+             <div class="metric-label">Current index</div>
+             <div class="metric-value" id="metricCurrent">100.0</div>
+             <div class="metric-sub" id="metricCurrentChange">0.0% vs start</div>
+           </div>
+           <div class="metric-card">
+             <div class="metric-label">Max drawdown</div>
+             <div class="metric-value" id="metricDrawdown">0.0%</div>
+             <div class="metric-sub" id="metricTrough">Trough: 100.0</div>
+           </div>
+           <div class="metric-card">
+             <div class="metric-label">Recovery</div>
+             <div class="metric-value" id="metricRecovery">–</div>
+             <div class="metric-sub" id="metricRecoveryDays">Days to recover</div>
+           </div>
+         </div>
+       </div>
 
-            <div class="slider-row">
-              <div class="slider-label">
-                <span>Volatility</span>
-                <span id="volatilityValue" class="slider-value">1.8x</span>
-              </div>
-              <input
-                id="volatilitySlider"
-                type="range"
-                min="0.5"
-                max="3"
-                step="0.1"
-                value="1.8"
-              />
-            </div>
-          </div>
 
-          <div class="control-actions">
-            <button id="playPauseBtn" class="btn btn-primary">Run simulation</button>
-            <button id="stepBtn" class="btn btn-ghost">Step once</button>
-            <button id="resetBtn" class="btn btn-outline">Reset</button>
-          </div>
-        </section>
-      </main>
+       <section class="panel controls-panel">
+         <div class="panel-header">
+           <h2>Scenario &amp; Controls</h2>
+           <p>Choose a shock scenario, then refine parameters for a custom stress test.</p>
+         </div>
 
-      <section id="analyticsTab" class="tab-content" hidden>
-        <div class="panel analytics-panel">
-          <div class="panel-header">
-            <h2>Industry Impact Heatmap</h2>
-            <p>Sectors most affected by the selected scenario (energy, defense, semiconductors, airlines, etc.)</p>
-          </div>
-          <div id="industryHeatmap" class="heatmap-grid"></div>
-        </div>
-        <div class="panel analytics-panel">
-          <div class="panel-header">
-            <h2>Stocks Most Likely to Move</h2>
-            <p>Representative companies by sector — up/down based on scenario sensitivity</p>
-          </div>
-          <div class="stocks-grid">
-            <div class="stocks-col">
-              <h3 class="stocks-subhead">Likely to decline</h3>
-              <ul id="stocksDown" class="stocks-list"></ul>
-            </div>
-            <div class="stocks-col">
-              <h3 class="stocks-subhead stocks-up">Likely to outperform</h3>
-              <ul id="stocksUp" class="stocks-list"></ul>
-            </div>
-          </div>
-        </div>
-        <div class="panel analytics-panel">
-          <div class="panel-header">
-            <h2>Quantification Metric</h2>
-            <p>Stress score (0–10) based on shock magnitude, duration, and volatility — inspired by St. Louis Fed Financial Stress Index</p>
-          </div>
-          <div id="quantificationMetric" class="quant-metric"></div>
-        </div>
-        <div class="panel analytics-panel">
-          <div class="panel-header">
-            <h2>Biggest Industry by Country</h2>
-            <p>Primary industry for each supported country/region</p>
-          </div>
-          <div id="biggestIndustryTable" class="data-table-wrap"></div>
-        </div>
-        <div class="panel analytics-panel">
-          <div class="panel-header">
-            <h2>Data Sources &amp; Where This Comes From</h2>
-            <p>Methodology and reference datasets</p>
-          </div>
-          <div class="data-sources-content">
-            <p>This simulator uses a <strong>synthetic stochastic model</strong>. Parameters are inspired by:</p>
-            <ul>
-              <li><strong>St. Louis Fed Financial Stress Index</strong> — quantification of stress (FRED)</li>
-              <li><strong>CBOE VIX</strong> — volatility calibration (Chicago Board Options Exchange via FRED)</li>
-              <li><strong>S&amp;P 500</strong> — equity index behavior (S&amp;P Dow Jones via FRED)</li>
-            </ul>
-            <p>No real market data is used. For retraining with real data, see <code>train_news_model.py</code> and <code>train_market_model.py</code>.</p>
-          </div>
-        </div>
-        <div class="panel analytics-panel">
-          <div class="panel-header">
-            <h2>Historical Comparison by Region</h2>
-            <p>How markets evolved in past crises — select a region to compare</p>
-          </div>
-          <div class="historical-controls">
-            <label class="field-label" for="histRegionSelect">Focus region</label>
-            <select id="histRegionSelect" class="select"></select>
-          </div>
-          <div id="historicalComp" class="historical-comp"></div>
-        </div>
-        <div class="panel analytics-panel">
-          <div class="panel-header">
-            <h2>Time-Horizon Simulations</h2>
-            <p>Projected impact over 1 week, 1 month, 1 year, 5 years (illustrative)</p>
-          </div>
-          <div id="timeHorizonSim" class="time-horizon-sim"></div>
-        </div>
-      </section>
 
-      <section id="recommendationsTab" class="tab-content" hidden>
-        <div class="panel recommendations-panel">
-          <div class="panel-header">
-            <h2>ML Stock Recommendations</h2>
-            <p>Predictions for stocks to consider or avoid based on your scenario (preset or custom). Timeline: 1 wk, 1 m, 1 yr, 5 yr.</p>
-          </div>
-          <div class="rec-scenario-summary" id="recScenarioSummary"></div>
-          <div class="rec-timeline-section">
-            <h3>Market &amp; index projections</h3>
-            <div id="recTimeHorizon" class="rec-timeline-grid"></div>
-          </div>
-          <div class="rec-stocks-section">
-            <h3>Stock picks — consider buying</h3>
-            <div id="recStocksUp" class="rec-stocks-list"></div>
-          </div>
-          <div class="rec-stocks-section rec-stocks-down">
-            <h3>Stocks to avoid or consider shorting</h3>
-            <div id="recStocksDown" class="rec-stocks-list"></div>
-          </div>
-          <div class="rec-timeline-section">
-            <h3>Projected performance by horizon (1 wk, 1 m, 1 yr, 5 yr)</h3>
-            <div id="recStockTimeline" class="rec-stock-timeline"></div>
-          </div>
-        </div>
-      </section>
+         <div class="control-group">
+           <label class="field-label">Scenario presets</label>
+           <div class="scenario-buttons" id="scenarioButtons">
+             <!-- Filled by JS -->
+           </div>
+         </div>
 
-      <footer class="app-footer">
-        <span>Geographic Market Shock Simulator</span>
-        <span class="footer-divider">•</span>
-        <span>All dynamics are synthetic and for educational experimentation only.</span>
-      </footer>
-    </div>
 
-    <script src="./app.js" defer></script>
-  </body>
+         <div class="control-group custom-scenario-box">
+           <label class="field-label" for="customScenarioInput">Custom scenario</label>
+           <textarea id="customScenarioInput" class="input textarea" rows="2" placeholder="e.g. Pandemic spreads across China, Germany invades Poland, oil embargo in Middle East"></textarea>
+           <p class="field-hint">Describe a specific event. ML model will predict sector impact and stock recommendations.</p>
+         </div>
+
+
+         <div class="field">
+           <label class="field-label" for="regionInput">Focus region</label>
+           <input type="text" id="regionInput" class="input" placeholder="e.g. North America, Germany, Japan" autocomplete="off" />
+           <div id="regionError" class="field-error" role="alert" hidden>Region not supported. See supported regions below.</div>
+           <p class="field-hint" id="regionHint">60+ regions supported</p>
+           <details class="regions-list-details">
+             <summary>View all supported regions</summary>
+             <div id="supportedRegionsList" class="regions-list"></div>
+           </details>
+         </div>
+
+
+         <div class="field">
+           <label class="field-label" for="sectorSelect">Sector within region</label>
+           <select id="sectorSelect" class="select">
+             <!-- Filled by JS -->
+           </select>
+         </div>
+
+
+         <details class="metrics-definitions">
+           <summary>Metric definitions</summary>
+           <div class="metrics-def-content">
+             <p><strong>Shock magnitude</strong> — Expected peak impact on equity returns (%). Negative = decline; positive = rally. E.g. -30% means a ~30% drop at the shock's peak.</p>
+             <p><strong>Shock duration</strong> — How many days the stress stays concentrated. Longer = slower decay; shorter = sharp spike then fast recovery.</p>
+             <p><strong>Volatility</strong> — Multiplier for day-to-day noise (like VIX). Higher = more erratic daily moves around the trend.</p>
+           </div>
+         </details>
+         <div class="slider-group">
+           <div class="slider-row">
+             <div class="slider-label">
+               <span>Shock magnitude</span>
+               <span id="magnitudeValue" class="slider-value">-30%</span>
+             </div>
+             <input
+               id="magnitudeSlider"
+               type="range"
+               min="-60"
+               max="20"
+               step="1"
+               value="-30"
+             />
+           </div>
+
+
+           <div class="slider-row">
+             <div class="slider-label">
+               <span>Shock duration</span>
+               <span id="durationValue" class="slider-value">10 days</span>
+             </div>
+             <input id="durationSlider" type="range" min="3" max="40" step="1" value="10" />
+           </div>
+
+
+           <div class="slider-row">
+             <div class="slider-label">
+               <span>Volatility</span>
+               <span id="volatilityValue" class="slider-value">1.8x</span>
+             </div>
+             <input
+               id="volatilitySlider"
+               type="range"
+               min="0.5"
+               max="3"
+               step="0.1"
+               value="1.8"
+             />
+           </div>
+         </div>
+
+
+         <div class="control-actions">
+           <button id="playPauseBtn" class="btn btn-primary">Run simulation</button>
+           <button id="stepBtn" class="btn btn-ghost">Step once</button>
+           <button id="resetBtn" class="btn btn-outline">Reset</button>
+         </div>
+       </section>
+     </main>
+
+
+     <section id="analyticsTab" class="tab-content" hidden>
+       <div class="panel analytics-panel">
+         <div class="panel-header">
+           <h2>Industry Impact Heatmap</h2>
+           <p>Sectors most affected by the selected scenario (energy, defense, semiconductors, airlines, etc.)</p>
+         </div>
+         <div id="industryHeatmap" class="heatmap-grid"></div>
+       </div>
+       <div class="panel analytics-panel">
+         <div class="panel-header">
+           <h2>Stocks Most Likely to Move</h2>
+           <p>Representative companies by sector — up/down based on scenario sensitivity</p>
+         </div>
+         <div class="stocks-grid">
+           <div class="stocks-col">
+             <h3 class="stocks-subhead">Likely to decline</h3>
+             <ul id="stocksDown" class="stocks-list"></ul>
+           </div>
+           <div class="stocks-col">
+             <h3 class="stocks-subhead stocks-up">Likely to outperform</h3>
+             <ul id="stocksUp" class="stocks-list"></ul>
+           </div>
+         </div>
+       </div>
+       <div class="panel analytics-panel">
+         <div class="panel-header">
+           <h2>Quantification Metric</h2>
+           <p>Stress score (0–10) based on shock magnitude, duration, and volatility — inspired by St. Louis Fed Financial Stress Index</p>
+         </div>
+         <div id="quantificationMetric" class="quant-metric"></div>
+       </div>
+       <div class="panel analytics-panel">
+         <div class="panel-header">
+           <h2>Biggest Industry by Country</h2>
+           <p>Primary industry for each supported country/region</p>
+         </div>
+         <div id="biggestIndustryTable" class="data-table-wrap"></div>
+       </div>
+       <div class="panel analytics-panel">
+         <div class="panel-header">
+           <h2>Data Sources &amp; Where This Comes From</h2>
+           <p>Methodology and reference datasets</p>
+         </div>
+         <div class="data-sources-content">
+           <p>This simulator uses a <strong>synthetic stochastic model</strong>. Parameters are inspired by:</p>
+           <ul>
+             <li><strong>St. Louis Fed Financial Stress Index</strong> — quantification of stress (FRED)</li>
+             <li><strong>CBOE VIX</strong> — volatility calibration (Chicago Board Options Exchange via FRED)</li>
+             <li><strong>S&amp;P 500</strong> — equity index behavior (S&amp;P Dow Jones via FRED)</li>
+           </ul>
+           <p>No real market data is used. For retraining with real data, see <code>train_news_model.py</code> and <code>train_market_model.py</code>.</p>
+         </div>
+       </div>
+       <div class="panel analytics-panel">
+         <div class="panel-header">
+           <h2>Historical Comparison by Region</h2>
+           <p>How markets evolved in past crises — select a region to compare</p>
+         </div>
+         <div class="historical-controls">
+           <label class="field-label" for="histRegionSelect">Focus region</label>
+           <select id="histRegionSelect" class="select"></select>
+         </div>
+         <div id="historicalComp" class="historical-comp"></div>
+       </div>
+       <div class="panel analytics-panel">
+         <div class="panel-header">
+           <h2>Time-Horizon Simulations</h2>
+           <p>Projected impact over 1 week, 1 month, 1 year, 5 years (illustrative)</p>
+         </div>
+         <div id="timeHorizonSim" class="time-horizon-sim"></div>
+       </div>
+     </section>
+
+
+     <section id="recommendationsTab" class="tab-content" hidden>
+       <div class="panel recommendations-panel">
+         <div class="panel-header">
+           <h2>ML Stock Recommendations</h2>
+           <p>Predictions for stocks to consider or avoid based on your scenario (preset or custom). Timeline: 1 wk, 1 m, 1 yr, 5 yr.</p>
+         </div>
+         <div class="rec-scenario-summary" id="recScenarioSummary"></div>
+         <div class="rec-timeline-section">
+           <h3>Market &amp; index projections</h3>
+           <div id="recTimeHorizon" class="rec-timeline-grid"></div>
+         </div>
+         <div class="rec-stocks-section">
+           <h3>Stock picks — consider buying</h3>
+           <div id="recStocksUp" class="rec-stocks-list"></div>
+         </div>
+         <div class="rec-stocks-section rec-stocks-down">
+           <h3>Stocks to avoid or consider shorting</h3>
+           <div id="recStocksDown" class="rec-stocks-list"></div>
+         </div>
+         <div class="rec-timeline-section">
+           <h3>Projected performance by horizon (1 wk, 1 m, 1 yr, 5 yr)</h3>
+           <div id="recStockTimeline" class="rec-stock-timeline"></div>
+         </div>
+       </div>
+     </section>
+
+
+     <footer class="app-footer">
+       <span>Geographic Market Shock Simulator</span>
+       <span class="footer-divider">•</span>
+       <span>All dynamics are synthetic and for educational experimentation only.</span>
+     </footer>
+   </div>
+
+
+   <script src="./app.js" defer></script>
+ </body>
 </html>
+
+
+
