@@ -1282,6 +1282,7 @@ const REGIONS = [
  }
 
  function renderAnalyticsTab() {
+ console.log('renderAnalyticsTab called');
  const scenario = getScenario();
  const heatmapEl = document.getElementById('industryHeatmap');
  if (heatmapEl) {
@@ -1301,11 +1302,15 @@ const REGIONS = [
  }
  const stocksDown = document.getElementById('stocksDown');
  const stocksUp = document.getElementById('stocksUp');
+ console.log('renderAnalyticsTab: stocksDown element:', stocksDown);
+ console.log('renderAnalyticsTab: stocksUp element:', stocksUp);
  if (stocksDown && stocksUp) {
+ console.log('renderAnalyticsTab: Found both elements, clearing and populating...');
  stocksDown.innerHTML = '';
  stocksUp.innerHTML = '';
  // Use the same ML-driven stock recommendations as the Simulator tab
  const { upList, downList } = getStockRecommendations();
+ console.log('renderAnalyticsTab: getStockRecommendations returned:', { upList: upList.length, downList: downList.length });
  downList.slice(0, 8).forEach((s) => {
  const li = document.createElement('li');
  li.innerHTML = `<span>${s.name}</span><span class="ticker">${s.ticker}</span>`;
@@ -1316,6 +1321,10 @@ const REGIONS = [
  li.innerHTML = `<span>${s.name}</span><span class="ticker">${s.ticker}</span>`;
  stocksUp.appendChild(li);
  });
+ console.log('renderAnalyticsTab: Populated stocksDown with', stocksDown.children.length, 'items');
+ console.log('renderAnalyticsTab: Populated stocksUp with', stocksUp.children.length, 'items');
+ } else {
+ console.log('renderAnalyticsTab: ERROR: stocksDown or stocksUp elements not found!');
  }
  const quantEl = document.getElementById('quantificationMetric');
  if (quantEl) {

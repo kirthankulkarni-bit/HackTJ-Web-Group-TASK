@@ -1,4 +1,4 @@
-# Geographic Market Shock Simulator
+# World Shock
 
 A **browser-based geographic stock market shock simulator** with analytics. Uses a synthetic model (no real data in the simulator) to show how regions react to macro shocks.
 
