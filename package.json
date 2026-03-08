@@ -1,0 +1,18 @@
+{
+  "name": "geographic-market-shock-simulator",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Interactive browser-based geographic stock market shock simulator with regional scenarios and synthetic index paths.",
+  "scripts": {
+    "start": "npx serve .",
+    "serve": "npx serve ."
+  },
+  "keywords": [
+    "simulation",
+    "markets",
+    "geographic",
+    "stocks",
+    "visualization"
+  ]
+}
+
