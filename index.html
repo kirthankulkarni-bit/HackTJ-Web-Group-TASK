@@ -38,6 +38,70 @@
       </header>
 
       <main id="simulatorTab" class="app-main tab-content">
+        <section class="panel viz-panel">
+          <div class="panel-header">
+            <h2>Geographic impact map</h2>
+            <p>
+              Regions glow red under stress and cool as they recover. Click a region to focus its
+              path.
+            </p>
+          </div>
+
+          <div id="mapContainer" class="map-grid">
+            <!-- Filled by JS -->
+          </div>
+
+          <div class="panel-subheader">
+            <div>
+              <h3>Index path</h3>
+              <p>Evolution of the selected region&rsquo;s synthetic equity index.</p>
+            </div>
+            <div class="chart-meta">
+              <span id="dayCounter" class="day-counter">Day 0 / 120</span>
+              <div class="legend">
+                <span class="legend-dot legend-dot-primary"></span>
+                <span>Index level</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="chart-shell">
+            <svg id="chartSvg" class="chart" role="img" aria-label="Index path over time"></svg>
+            <div class="chart-axis-label chart-axis-label-x">Time (days)</div>
+            <div class="chart-axis-label chart-axis-label-y">Index level</div>
+          </div>
+
+          <div class="event-log">
+            <div class="event-log-header">
+              <span>Simulation log</span>
+              <button id="clearLogBtn" class="btn-icon" aria-label="Clear log">
+                ✕
+              </button>
+            </div>
+            <ul id="eventLogList"></ul>
+          </div>
+        </section>
+
+        <div class="simulator-metrics-panel">
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <div class="metric-label">Current index</div>
+              <div class="metric-value" id="metricCurrent">100.0</div>
+              <div class="metric-sub" id="metricCurrentChange">0.0% vs start</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Max drawdown</div>
+              <div class="metric-value" id="metricDrawdown">0.0%</div>
+              <div class="metric-sub" id="metricTrough">Trough: 100.0</div>
+            </div>
+            <div class="metric-card">
+              <div class="metric-label">Recovery</div>
+              <div class="metric-value" id="metricRecovery">–</div>
+              <div class="metric-sub" id="metricRecoveryDays">Days to recover</div>
+            </div>
+          </div>
+        </div>
+
         <section class="panel controls-panel">
           <div class="panel-header">
             <h2>Scenario &amp; Controls</h2>
@@ -89,7 +153,7 @@
           <details class="metrics-definitions">
             <summary>Metric definitions</summary>
             <div class="metrics-def-content">
-              <p><strong>Shock magnitude</strong> — Expected peak impact on equity returns (%). Negative = decline; positive = rally. E.g. -30% means a ~30% drop at the shock’s peak.</p>
+              <p><strong>Shock magnitude</strong> — Expected peak impact on equity returns (%). Negative = decline; positive = rally. E.g. -30% means a ~30% drop at the shock's peak.</p>
               <p><strong>Shock duration</strong> — How many days the stress stays concentrated. Longer = slower decay; shorter = sharp spike then fast recovery.</p>
               <p><strong>Volatility</strong> — Multiplier for day-to-day noise (like VIX). Higher = more erratic daily moves around the trend.</p>
             </div>
@@ -138,68 +202,6 @@
             <button id="playPauseBtn" class="btn btn-primary">Run simulation</button>
             <button id="stepBtn" class="btn btn-ghost">Step once</button>
             <button id="resetBtn" class="btn btn-outline">Reset</button>
-          </div>
-
-          <div class="metrics-grid">
-            <div class="metric-card">
-              <div class="metric-label">Current index</div>
-              <div class="metric-value" id="metricCurrent">100.0</div>
-              <div class="metric-sub" id="metricCurrentChange">0.0% vs start</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Max drawdown</div>
-              <div class="metric-value" id="metricDrawdown">0.0%</div>
-              <div class="metric-sub" id="metricTrough">Trough: 100.0</div>
-            </div>
-            <div class="metric-card">
-              <div class="metric-label">Recovery</div>
-              <div class="metric-value" id="metricRecovery">–</div>
-              <div class="metric-sub" id="metricRecoveryDays">Days to recover</div>
-            </div>
-          </div>
-
-          <div class="event-log">
-            <div class="event-log-header">
-              <span>Simulation log</span>
-              <button id="clearLogBtn" class="btn-icon" aria-label="Clear log">
-                ✕
-              </button>
-            </div>
-            <ul id="eventLogList"></ul>
-          </div>
-        </section>
-
-        <section class="panel viz-panel">
-          <div class="panel-header">
-            <h2>Geographic impact map</h2>
-            <p>
-              Regions glow red under stress and cool as they recover. Click a region to focus its
-              path.
-            </p>
-          </div>
-
-          <div id="mapContainer" class="map-grid">
-            <!-- Filled by JS -->
-          </div>
-
-          <div class="panel-subheader">
-            <div>
-              <h3>Index path</h3>
-              <p>Evolution of the selected region&rsquo;s synthetic equity index.</p>
-            </div>
-            <div class="chart-meta">
-              <span id="dayCounter" class="day-counter">Day 0 / 120</span>
-              <div class="legend">
-                <span class="legend-dot legend-dot-primary"></span>
-                <span>Index level</span>
-              </div>
-            </div>
-          </div>
-
-          <div class="chart-shell">
-            <svg id="chartSvg" class="chart" role="img" aria-label="Index path over time"></svg>
-            <div class="chart-axis-label chart-axis-label-x">Time (days)</div>
-            <div class="chart-axis-label chart-axis-label-y">Index level</div>
           </div>
         </section>
       </main>
@@ -313,4 +315,3 @@
     <script src="./app.js" defer></script>
   </body>
 </html>
-

@@ -230,13 +230,54 @@ const REGIONS = [
  ];
  
  const CUSTOM_SCENARIO_KEYWORDS = {
- pandemic: { keywords: ['pandemic', 'outbreak', 'virus', 'covid', 'epidemic', 'spreads', 'disease'], sectorsUp: ['healthcare', 'defensive'], sectorsDown: ['airlines', 'consumer'] },
- war: { keywords: ['war', 'invades', 'invasion', 'conflict', 'military', 'attack'], sectorsUp: ['defense', 'energy'], sectorsDown: ['airlines', 'consumer'] },
- energy: { keywords: ['oil', 'energy', 'embargo', 'gas', 'opec', 'petroleum'], sectorsUp: ['energy'], sectorsDown: ['airlines', 'consumer'] },
- financial: { keywords: ['recession', 'crash', 'bank', 'financial', 'credit', 'default'], sectorsUp: ['defensive', 'healthcare'], sectorsDown: ['financials', 'tech'] },
- tech: { keywords: ['tech', 'semiconductor', 'bubble', 'valuation'], sectorsUp: ['defensive'], sectorsDown: ['tech', 'semiconductors'] },
- china: { keywords: ['china', 'chinese'], sectorsUp: [], sectorsDown: ['tech', 'consumer'] },
- europe: { keywords: ['europe', 'eu', 'germany', 'ukraine'], sectorsUp: ['defense', 'energy'], sectorsDown: ['financials'] },
+ pandemic: { 
+   keywords: ['pandemic', 'outbreak', 'virus', 'covid', 'epidemic', 'spreads', 'disease', 'contagion', 'lockdown'],
+   sectorsUp: ['healthcare', 'defensive'],
+   sectorsDown: ['airlines', 'consumer'],
+   presets: { magnitude: -25, duration: 15, volatility: 1.9 }
+ },
+ war: { 
+   keywords: ['war', 'invades', 'invasion', 'conflict', 'military', 'attack', 'combat', 'battle'],
+   sectorsUp: ['defense', 'energy'],
+   sectorsDown: ['airlines', 'consumer'],
+   presets: { magnitude: -32, duration: 12, volatility: 2.1 }
+ },
+ energy: { 
+   keywords: ['oil', 'energy', 'embargo', 'gas', 'opec', 'petroleum', 'supply shock', 'energy crisis'],
+   sectorsUp: ['energy'],
+   sectorsDown: ['airlines', 'consumer'],
+   presets: { magnitude: -18, duration: 8, volatility: 1.6 }
+ },
+ financial: { 
+   keywords: ['recession', 'crash', 'bank', 'financial', 'credit', 'default', 'crisis', 'liquidity', 'bankruptcy'],
+   sectorsUp: ['defensive', 'healthcare'],
+   sectorsDown: ['financials', 'tech'],
+   presets: { magnitude: -38, duration: 18, volatility: 2.2 }
+ },
+ tech: { 
+   keywords: ['tech', 'semiconductor', 'bubble', 'valuation', 'ai', 'software', 'innovation'],
+   sectorsUp: ['defensive'],
+   sectorsDown: ['tech', 'semiconductors'],
+   presets: { magnitude: -28, duration: 10, volatility: 1.7 }
+ },
+ china: { 
+   keywords: ['china', 'chinese', 'beijing', 'shanghai', 'taiwan', 'asia'],
+   sectorsUp: [],
+   sectorsDown: ['tech', 'consumer'],
+   presets: { magnitude: -22, duration: 10, volatility: 1.8 }
+ },
+ europe: { 
+   keywords: ['europe', 'eu', 'germany', 'ukraine', 'brexit', 'italian', 'french', 'frankfurt'],
+   sectorsUp: ['defense', 'energy'],
+   sectorsDown: ['financials'],
+   presets: { magnitude: -26, duration: 14, volatility: 1.9 }
+ },
+ geopolitical: {
+   keywords: ['geopolitical', 'sanctions', 'tariff', 'trade war', 'trade dispute', 'protectionism'],
+   sectorsUp: ['defense'],
+   sectorsDown: ['consumer', 'tech'],
+   presets: { magnitude: -20, duration: 12, volatility: 1.7 }
+ },
  };
 
  const state = {
@@ -294,15 +335,43 @@ const REGIONS = [
  const sectorsUp = new Set();
  const sectorsDown = new Set();
  let matched = 0;
+ const matchedTypes = [];
+ let aggregatedMagnitude = 0;
+ let aggregatedDuration = 0;
+ let aggregatedVolatility = 0;
+ 
  for (const [type, cfg] of Object.entries(CUSTOM_SCENARIO_KEYWORDS)) {
  if (cfg.keywords.some((k) => t.includes(k))) {
  matched += 1;
+ matchedTypes.push(type);
  (cfg.sectorsUp || []).forEach((s) => sectorsUp.add(s));
  (cfg.sectorsDown || []).forEach((s) => sectorsDown.add(s));
+ 
+ if (cfg.presets) {
+ aggregatedMagnitude += cfg.presets.magnitude;
+ aggregatedDuration += cfg.presets.duration;
+ aggregatedVolatility += cfg.presets.volatility;
  }
  }
+ }
+ 
+ let presets = null;
+ if (matched > 0) {
+ const avgMagnitude = Math.round(aggregatedMagnitude / matched);
+ const avgDuration = Math.round(aggregatedDuration / matched);
+ const avgVolatility = parseFloat((aggregatedVolatility / matched).toFixed(1));
+ presets = { magnitude: avgMagnitude, duration: avgDuration, volatility: avgVolatility };
+ }
+ 
  const confidence = Math.min(0.95, 0.5 + matched * 0.15);
- return { sectorsUp: [...sectorsUp], sectorsDown: [...sectorsDown], confidence, hasMatch: matched > 0 };
+ return { 
+   sectorsUp: [...sectorsUp], 
+   sectorsDown: [...sectorsDown], 
+   confidence, 
+   hasMatch: matched > 0,
+   matchedTypes,
+   presets
+ };
  }
 
  function getStockRecommendations() {
@@ -1059,7 +1128,41 @@ const REGIONS = [
  if (!el) return;
  el.addEventListener('input', () => {
  state.customScenarioText = el.value;
+ applyCustomScenarioPresets(el.value);
  });
+ }
+
+ function applyCustomScenarioPresets(text) {
+ const classified = classifyCustomScenario(text);
+ if (!classified || !classified.hasMatch || !classified.presets) {
+ return;
+ }
+
+ const presets = classified.presets;
+ 
+ state.shockMagnitude = presets.magnitude;
+ state.shockDuration = presets.duration;
+ state.volatilityMult = presets.volatility;
+ 
+ const magnitudeSlider = document.getElementById('magnitudeSlider');
+ const durationSlider = document.getElementById('durationSlider');
+ const volatilitySlider = document.getElementById('volatilitySlider');
+ 
+ if (magnitudeSlider) magnitudeSlider.value = presets.magnitude;
+ if (durationSlider) durationSlider.value = presets.duration;
+ if (volatilitySlider) volatilitySlider.value = presets.volatility;
+ 
+ updateSliderLabels();
+ 
+ if (state.selectedScenarioId !== 'custom') {
+ state.selectedScenarioId = 'custom';
+ for (const btn of document.querySelectorAll('.scenario-btn')) {
+ btn.classList.toggle('selected', btn.dataset.scenarioId === 'custom');
+ }
+ logEvent(`Scenario auto-configured: ${classified.matchedTypes.join(', ')} detected. Magnitude: ${presets.magnitude}%, Duration: ${presets.duration}d, Volatility: ${presets.volatility}x`);
+ } else {
+ logEvent(`Metrics updated from scenario keywords: Magnitude ${presets.magnitude}%, Duration ${presets.duration}d, Volatility ${presets.volatility}x`);
+ }
  }
 
  function setupSupportedRegionsList() {
